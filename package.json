@@ -25,7 +25,6 @@
         "sass-loader": "^8.0.0"
     },
     "dependencies": {
-        "@react-google-maps/api": "^2.1.1",
         "google-map-react": "^2.1.9",
         "react-geocode": "^0.2.3"
     }
