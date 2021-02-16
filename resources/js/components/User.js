@@ -63,12 +63,12 @@ function User() {
         lng: 30.33
     })
     const [plotData, setPlotData] = React.useState([]);
+    const [listData, setListData] = React.useState([]);
     const [loadingList, setLoadingList] = React.useState(false);
 
     const fetchGeocode = (addr) => Geocode.fromAddress(addr).then(
         (response) => {
             const bounds = response.results[0].geometry.bounds
-            console.log(response.results[0])
             const { lat, lng } = response.results[0].geometry.location;
             return { lat, lng, bounds };
         },
@@ -83,7 +83,9 @@ function User() {
     }, [cityName]);
 
     React.useEffect(() => {
+
         if (view === 'list') fetchList();
+        else setPlotData([])
     }, [view])
 
     async function fetchList() {
@@ -92,8 +94,7 @@ function User() {
         const start = format(sub(new Date(), { years: 1 }), 'yyyy-MM-dd');
         const end = format(new Date(), 'yyyy-MM-dd');
         const promiseData = await axios.get(`/api/earthquakes?start=${start}&end=${end}`).then(data => data.data);
-        console.log('%c promiseData', 'background: #332167; color: #B3D1F6; font-size: 16px', promiseData)
-        setPlotData(promiseData.features);
+        setListData(promiseData.features);
         setLoadingList(false)
     }
 
@@ -137,13 +138,13 @@ function User() {
                                 />)}
                             {view === 'list' && (
                                 <>
-                                    {loadingList ? <span>...Loading data.</span> : (
+                                    {!loadingList ? (
                                         <div style={{ display: 'grid' }}>
-                                            {plotData.map((plot, index) => (
+                                            {listData.length > 0 && listData.map((plot, index) => (
                                                 <div className="card">
-                                                    <span className="card-header">{`#${index+1} ${plot.properties.place}`}</span>
+                                                    <span className="card-header">{`#${index + 1} ${plot.properties.place}`}</span>
                                                     <div className="card-body">
-                                                        <div style={{ display: 'flex', justifyContent: 'space-evenly'}}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
                                                             <span>magnitude: {plot.properties.mag}</span>
                                                             <span>{new Date(plot.properties.time).toLocaleDateString()}</span>
                                                         </div>
@@ -152,7 +153,7 @@ function User() {
 
                                             ))}
                                         </div>
-                                    )}
+                                    ) : <span>...Loading data.</span>}
                                 </>
                             )}
                         </div>

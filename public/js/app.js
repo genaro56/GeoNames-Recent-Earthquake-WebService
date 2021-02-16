@@ -2734,15 +2734,19 @@ function User() {
       plotData = _React$useState10[0],
       setPlotData = _React$useState10[1];
 
-  var _React$useState11 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+  var _React$useState11 = react__WEBPACK_IMPORTED_MODULE_1__.useState([]),
       _React$useState12 = _slicedToArray(_React$useState11, 2),
-      loadingList = _React$useState12[0],
-      setLoadingList = _React$useState12[1];
+      listData = _React$useState12[0],
+      setListData = _React$useState12[1];
+
+  var _React$useState13 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+      _React$useState14 = _slicedToArray(_React$useState13, 2),
+      loadingList = _React$useState14[0],
+      setLoadingList = _React$useState14[1];
 
   var fetchGeocode = function fetchGeocode(addr) {
     return react_geocode__WEBPACK_IMPORTED_MODULE_4__.default.fromAddress(addr).then(function (response) {
       var bounds = response.results[0].geometry.bounds;
-      console.log(response.results[0]);
       var _response$results$0$g = response.results[0].geometry.location,
           lat = _response$results$0$g.lat,
           lng = _response$results$0$g.lng;
@@ -2760,7 +2764,7 @@ function User() {
     if (cityName.length < 1) setIsDisabled(true);else setIsDisabled(false);
   }, [cityName]);
   react__WEBPACK_IMPORTED_MODULE_1__.useEffect(function () {
-    if (view === 'list') fetchList();
+    if (view === 'list') fetchList();else setPlotData([]);
   }, [view]);
 
   function fetchList() {
@@ -2787,11 +2791,10 @@ function User() {
 
             case 5:
               promiseData = _context.sent;
-              console.log('%c promiseData', 'background: #332167; color: #B3D1F6; font-size: 16px', promiseData);
-              setPlotData(promiseData.features);
+              setListData(promiseData.features);
               setLoadingList(false);
 
-            case 9:
+            case 8:
             case "end":
               return _context.stop();
           }
@@ -2903,18 +2906,16 @@ function User() {
               },
               plotData: plotData
             }), view === 'list' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.Fragment, {
-              children: loadingList ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
-                children: "...Loading data."
-              }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+              children: !loadingList ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
                 style: {
                   display: 'grid'
                 },
-                children: plotData.map(function (plot, index) {
+                children: listData.length > 0 && listData.map(function (plot, index) {
                   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
                     className: "card",
                     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
                       className: "card-header",
-                      children: "#".concat(index, " ").concat(plot.properties.place)
+                      children: "#".concat(index + 1, " ").concat(plot.properties.place)
                     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
                       className: "card-body",
                       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
@@ -2931,6 +2932,8 @@ function User() {
                     })]
                   });
                 })
+              }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("span", {
+                children: "...Loading data."
               })
             })]
           })]
