@@ -25,6 +25,7 @@
         "sass-loader": "^8.0.0"
     },
     "dependencies": {
+        "date-fns": "^2.17.0",
         "google-map-react": "^2.1.9",
         "react-geocode": "^0.2.3"
     }

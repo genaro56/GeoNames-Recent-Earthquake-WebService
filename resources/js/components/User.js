@@ -4,6 +4,7 @@ import axios from 'axios';
 import Geocode from "react-geocode";
 import GoogleMapReact from 'google-map-react';
 import './map_styles.css';
+import { format, sub } from 'date-fns';
 
 Geocode.setApiKey('AIzaSyBkQkbyeCIhTDf2nKPBYQVl2CN_VFjTBDU');
 
@@ -24,31 +25,8 @@ const SimpleMap = ({
     zoom = 11,
     plotData = [],
 }) => {
-    // const { isLoaded } = useJsApiLoader({
-    //     id: 'google-map-script',
-    //     googleMapsApiKey: "AIzaSyBkQkbyeCIhTDf2nKPBYQVl2CN_VFjTBDU"
-    // })
-
-    const [mapValues, setMapValues] = React.useState(null);
-    const [maps, setMaps] = React.useState(null);
-
-    // React.useEffect(() => { console.log('isLoaded', isLoaded) }, [isLoaded]);
-
-    React.useEffect(() => {
-        if (mapValues && maps) {
-            // const bounds = new maps.geometry.LatLngBounds();
-            // bounds.extend(new maps.LatLng(
-            //     center.lat,
-            //     center.lng,
-            // ))
-            // console.log(east);
-            // onGetBounds(mapValues.bounds);
-        }
-    }, [mapValues, maps]);
-
     const handleApiLoaded = (map, maps) => {
         if (maps) {
-            setMaps(maps);
             console.log('API loaded', maps);
         }
     };
@@ -62,7 +40,6 @@ const SimpleMap = ({
                 center={center}
                 yesIWantToUseGoogleMapApiInternals
                 onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
-                onChange={(val) => setMapValues(val)}
             >
                 {plotData.map((plot, index) => (
                     <Marker
@@ -79,12 +56,14 @@ const SimpleMap = ({
 
 function User() {
     const [cityName, setCityName] = React.useState('');
+    const [view, setView] = React.useState('map');
     const [isDisabled, setIsDisabled] = React.useState(false);
     const [coordinates, setCoordinates] = React.useState({
         lat: 59.95,
         lng: 30.33
     })
     const [plotData, setPlotData] = React.useState([]);
+    const [loadingList, setLoadingList] = React.useState(false);
 
     const fetchGeocode = (addr) => Geocode.fromAddress(addr).then(
         (response) => {
@@ -103,9 +82,23 @@ function User() {
         else setIsDisabled(false);
     }, [cityName]);
 
+    React.useEffect(() => {
+        if (view === 'list') fetchList();
+    }, [view])
+
+    async function fetchList() {
+        // https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=2014-01-02
+        setLoadingList(true)
+        const start = format(sub(new Date(), { years: 1 }), 'yyyy-MM-dd');
+        const end = format(new Date(), 'yyyy-MM-dd');
+        const promiseData = await axios.get(`/api/earthquakes?start=${start}&end=${end}`).then(data => data.data);
+        console.log('%c promiseData', 'background: #332167; color: #B3D1F6; font-size: 16px', promiseData)
+        setPlotData(promiseData.features);
+        setLoadingList(false)
+    }
+
     async function executeQuery() {
         const { lat, lng, bounds } = await fetchGeocode(cityName);
-        console.log('%c bounds', 'background: #332167; color: #B3D1F6; font-size: 16px', bounds)
         const headers = {
             'Content-type': 'application/json',
             'Accept': 'application/json, text/plain',
@@ -127,15 +120,41 @@ function User() {
                     <div className="card text-center">
                         <div className="card-header"><h2>GeoNames Recent Earthquake WebService</h2></div>
                         <div className="row justify-content-sm-center flex-md-grow-1">
-                            <input value={cityName} onChange={(e) => setCityName(e.target.value)} />
+                            <input placeholder="e.g. Los Angeles" value={cityName} onChange={(e) => setCityName(e.target.value)} />
                             <button disabled={isDisabled} onClick={() => executeQuery()}>Search</button>
                         </div>
                         <div className="card-body">
-                            <SimpleMap
-                                center={{ lng: coordinates.lng, lat: coordinates.lat }}
-                                onGetBounds={(bounds) => bounds && setMapBounds(bounds)}
-                                plotData={plotData}
-                            />
+                            <div className="d-inline-flex">
+                                <button onClick={() => setView('map')}>Map</button>
+                                <button onClick={() => setView('list')}>List</button>
+                            </div>
+                            <hr />
+                            {view === 'map' && (
+                                <SimpleMap
+                                    center={{ lng: coordinates.lng, lat: coordinates.lat }}
+                                    onGetBounds={(bounds) => bounds && setMapBounds(bounds)}
+                                    plotData={plotData}
+                                />)}
+                            {view === 'list' && (
+                                <>
+                                    {loadingList ? <span>...Loading data.</span> : (
+                                        <div style={{ display: 'grid' }}>
+                                            {plotData.map((plot, index) => (
+                                                <div className="card">
+                                                    <span className="card-header">{`#${index+1} ${plot.properties.place}`}</span>
+                                                    <div className="card-body">
+                                                        <div style={{ display: 'flex', justifyContent: 'space-evenly'}}>
+                                                            <span>magnitude: {plot.properties.mag}</span>
+                                                            <span>{new Date(plot.properties.time).toLocaleDateString()}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
