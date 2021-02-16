@@ -2641,7 +2641,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
-react_geocode__WEBPACK_IMPORTED_MODULE_4__.default.setApiKey('AIzaSyBkQkbyeCIhTDf2nKPBYQVl2CN_VFjTBDU');
+react_geocode__WEBPACK_IMPORTED_MODULE_4__.default.setApiKey("AIzaSyBkQkbyeCIhTDf2nKPBYQVl2CN_VFjTBDU");
 
 var Marker = function Marker(_ref) {
   var text = _ref.text,
@@ -2682,7 +2682,7 @@ var SimpleMap = function SimpleMap(_ref2) {
       },
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(google_map_react__WEBPACK_IMPORTED_MODULE_5__.default, {
         bootstrapURLKeys: {
-          key: 'AIzaSyAI6aQYkkyqi-_B5Y9E9U3trurpEsdwGZI'
+          key: "AIzaSyAI6aQYkkyqi-_B5Y9E9U3trurpEsdwGZI"
         },
         defaultZoom: zoom,
         center: center,

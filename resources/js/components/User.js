@@ -6,7 +6,7 @@ import GoogleMapReact from 'google-map-react';
 import './map_styles.css';
 import { format, sub } from 'date-fns';
 
-Geocode.setApiKey('AIzaSyBkQkbyeCIhTDf2nKPBYQVl2CN_VFjTBDU');
+Geocode.setApiKey(process.env.MIX_GEOCODE_KEY);
 
 const Marker = ({ text, data = {} }) => (
     <div className="marker">
@@ -35,7 +35,7 @@ const SimpleMap = ({
         // Important! Always set the container height explicitly
         <div style={{ height: '100vh', width: '100%' }}>
             <GoogleMapReact
-                bootstrapURLKeys={{ key: 'AIzaSyAI6aQYkkyqi-_B5Y9E9U3trurpEsdwGZI' }}
+                bootstrapURLKeys={{ key: process.env.MIX_MAPS_KEY }}
                 defaultZoom={zoom}
                 center={center}
                 yesIWantToUseGoogleMapApiInternals
